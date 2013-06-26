@@ -48,8 +48,8 @@ include:
   piece of code
 * auto-indenting
 * search and replace with regular expressions, but be careful and save often, I
-  didn't have the time to test it extensively (Regular expressions work only in
-  Find box. Furthermore, currently, the Replace box doesn't support capturing
+  didn't have the time to test it extensively yet (Regular expressions work only
+  in Find box. Furthermore, currently, the Replace box doesn't support capturing
   parentheses. It does support the following escape sequences: \n, \r, \t.)
 * tabs are automatically replaced with spaces (yep, that's not a bug)
 * settings persistent across sessions
@@ -63,14 +63,21 @@ include:
 Setup
 =====
 
-1. Press [download as zip].
-2. Extract the [dist direc] to the folder of your choice on your hard drive.
-   NOTE: You need the whole folder, i.e. including any subfolders.
-3. If you want to send your scripts to a running instance of Praat to execute,
+1. Download the repository in a zipped file either by pressing the ZIP button
+   with a cloud at the top of the page, or clicking
+   [here](https://github.com/dafydd-lukes/PraatEdit/archive/master.zip).
+2. Extract the PraatEdit-master/dist subdirectory to the folder of your choice
+   on your hard drive. NOTE: You need the whole folder, i.e. including any
+   subfolders.
+3. If you don't want to play around with the source code, you don't need any of
+   the other files.
+4. If you want to send your scripts to a running instance of Praat to execute,
    consult the section Sendpraat.
-4. Run the program by double-clicking on PraatEdit.jar, or by opening a command
-   line, changing directory to the folder where PraatEdit.jar is located and
-   executing java -jar PraatEdit.jar.
+5. Run the program by double-clicking on PraatEdit.jar in the dist folder, or by
+   opening a command line, changing directory to the folder where PraatEdit.jar
+   is located and executing `java -jar PraatEdit.jar`. (If double-clicking
+   doesn't work by default on your platform, Google should be able to help you
+   out.)
 
 Troubleshooting
 ===============
@@ -81,11 +88,11 @@ Troubleshooting
    12\.04 and Windows 7 with Java 1.7.
 2. The text of your script looks weird, with interspersed spaces, unrecognized
    characters etc.? It was probably saved in UTF-16, UTF-32 or some other
-   unusual format. Please convert it to ASCII, UTF-8 or your current locale. You
-   can also re-save it using Praat's built-in editor.
+   unusual encoding. Please convert it to ASCII, UTF-8 or your current locale.
+   You can also re-save it in ASCII/UTF-8 using Praat's built-in editor.
 3. If your OS is a flavor of GNU/Linux and double-clicking PraatEdit.jar doesn't
-   start the program, make sure the file's executable flag is on (chmod a+x
-   PraatEdit.jar in the file's directory in the terminal).
+   start the program, make sure the file's executable flag is on (`chmod a+x
+   PraatEdit.jar` in the file's directory in the terminal).
 4. Should one of your files be corrupted following to an unexpected crash, the
    first thing to do is to go to the backup version you're keeping (aren't
    you?). The next thing to do is to check the directory where the corrupted
@@ -97,30 +104,32 @@ Troubleshooting
    regarding syntax highlighting. I'm not an expert on the arcana of the Praat
    scripting language, so this can easily happen, and chances are it'll be a
    quick fix.
-7. Something really weird going on? Run PraatEdit from the commandline, round
-   up any error messages that may appear and let me know about them via github.
+7. Something really weird going on? Run PraatEdit from the commandline, round up
+   any error messages that may appear and let me know about them via github.
 
 Sendpraat
 =========
 
 For PraatEdit to be able to send the contents of your script to Praat to run,
-you need to have the program sendpraat available in your hom folder. To ensure
-that, follow these steps:
+you need to have the program `sendpraat` located in your home folder (in
+addition to [Praat itself](http://www.fon.hum.uva.nl/praat/), of course). To
+ensure that, follow these steps:
 
-1. Download Paul Boersma's program sendpraat from ...
-2. Make sure the program is called exactly "sendpraat" (or "sendpraat.exe" on
-   Windows).
-3. Put it in your home folder (e.g. /home/username/ on GNU/Linux or
-   C:\Users\username\ on Windows).
-4. On GNU/Linux, make sure that sendpraat has the executable flag on (e.g.  by
-   running chmod a+x sendpraat in your home directory).
+1. Download Paul Boersma's program
+   [`sendpraat`](http://www.fon.hum.uva.nl/praat/sendpraat.html).
+2. Make sure the program is called *precisely* `sendpraat` (or `sendpraat.exe` on
+   Windows); if not, rename it to `sendpraat` (or `sendpraat.exe` on Windows).
+3. Put it in your home folder (e.g. `/home/username/` on GNU/Linux or
+   `C:\Users\username\` on Windows).
+4. On GNU/Linux, make sure that sendpraat has the executable flag on (e.g. by
+   running `chmod a+x sendpraat` in your home directory).
 
 Note for programmers
 ====================
 
-If you're considering modifying PraatEdit to improve its performance, let me
-kindly suggest a better use of your time: write a Praat syntax highlighting file
-for Vim, and a function which sends the content of the buffer to Praat via
-sendpraat. And let me know when it's available, 'cause I'd love to use it!
-There's no need to reinvent the wheel (I did it because I needed a class
-project), and Vim's the best wheel around, as we all know ;)
+If you're considering modifying PraatEdit to improve its performance, that would
+be great, but let me kindly suggest a better use of your time: write a Praat
+syntax highlighting file for Vim, and a function which sends the content of the
+buffer to Praat via `sendpraat`. And let me know when it's available, 'cause I'd
+love to use it!  There's no need to reinvent the wheel (I did it because I
+needed a class project), and Vim's the best wheel around, as we all know ;)
