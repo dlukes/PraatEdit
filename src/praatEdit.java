@@ -14,10 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -59,7 +55,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private static final int lineSepLen = 1;
     // keep track of personal settings:
     private static int fontSize = 14;
-    private static String praatEditRCStr = System.getProperty("user.home") + System.getProperty("file.separator") + ".praateditrc";
+    private static String praatEditRCStr = System.getProperty("user.home")
+            + System.getProperty("file.separator") + ".praateditrc";
     private File praatEditRC = new java.io.File(praatEditRCStr);
     // keep track of whether document should be saved before closing:
     private Boolean documentModified = false;
@@ -98,7 +95,9 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private Boolean openingFile = false;
     private static final String fileSep = System.getProperty("file.separator");
     private static final String userHome = System.getProperty("user.home");
-
+    private static final Boolean osIsWindows = 
+            System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
+    private static final String praatDir = osIsWindows ? "Praat" : ".praat-dir";
     /**
      * Creates new form praatEdit
      */
@@ -711,7 +710,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     runFile();
                     break;
                 case 1:
-                    return;
             }
         } else {
             prepareFileForSendPraat();
@@ -1170,8 +1168,9 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
          * without the full path, but in order to find the file in this case,
          * sendpraat needs the file to be located in ~/.praat-dir/; the most
          * hassle-free way to deal with this is just to make a copy there...
+         * EDIT: and of course, ~/.praat-dir is ~/Praat under Windows. (sigh)
          */
-        File runFile = new File(userHome + fileSep + ".praat-dir"
+        File runFile = new File(userHome + fileSep + praatDir
                 + fileSep + "PraatEditMessageToPraat");
         try (FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false)) {
             textPane.write(fw);
