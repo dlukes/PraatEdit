@@ -1,3 +1,6 @@
+![PraatEdit v0.1.1](./PraatEdit_screenshot.png "A screenshot of PraatEdit
+v0.1.1, along with the Praat Info window.")
+
 Credits
 =======
 
