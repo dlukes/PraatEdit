@@ -14,7 +14,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -93,6 +96,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private OpenFileTask openTask;
     private String filename;
     private Boolean openingFile = false;
+    private static final String fileSep = System.getProperty("file.separator");
+    private static final String userHome = System.getProperty("user.home");
 
     /**
      * Creates new form praatEdit
@@ -184,6 +189,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         menuFileNew = new javax.swing.JMenuItem();
         menuFileOpen = new javax.swing.JMenuItem();
         menuFileSave = new javax.swing.JMenuItem();
+        menuFileSaveAs = new javax.swing.JMenuItem();
         menuFileRun = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         menuFileSaveNew = new javax.swing.JMenuItem();
@@ -390,6 +396,15 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             }
         });
         menuFile.add(menuFileSave);
+
+        menuFileSaveAs.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuFileSaveAs.setText("Save As");
+        menuFileSaveAs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuFileSaveAsActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuFileSaveAs);
 
         menuFileRun.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
         menuFileRun.setText("Run");
@@ -614,7 +629,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     null, options, options[2]);
             switch (answer) {
                 case 0:
-                    saveFile();
+                    saveFile(false);
                     break;
                 case 1:
                     break;
@@ -623,21 +638,17 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             }
         }
 
-        try {
-            openFile();
-        } catch (Exception ex) {
-        }
-
+        openFile();
     }//GEN-LAST:event_menuFileOpenActionPerformed
 
     private void menuFileSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveActionPerformed
         // TODO add your handling code here:
-        saveFile();
+        saveFile(false);
     }//GEN-LAST:event_menuFileSaveActionPerformed
 
     private void menuFileSaveRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveRunActionPerformed
         // TODO add your handling code here:
-        saveFile();
+        saveFile(false);
         runFile();
     }//GEN-LAST:event_menuFileSaveRunActionPerformed
 
@@ -652,7 +663,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     null, options, options[2]);
             switch (answer) {
                 case 0:
-                    saveFile();
+                    saveFile(false);
                     break;
                 case 1:
                     break;
@@ -671,16 +682,13 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
     private void menuFileSaveOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveOpenActionPerformed
         // TODO add your handling code here:
-        saveFile();
-        try {
-            openFile();
-        } catch (Exception ex) {
-        }
+        saveFile(false);
+        openFile();
     }//GEN-LAST:event_menuFileSaveOpenActionPerformed
 
     private void menuFileSaveNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveNewActionPerformed
         // TODO add your handling code here:
-        saveFile();
+        saveFile(false);
         try {
             doc.remove(0, doc.getLength());
             file = null;
@@ -699,13 +707,14 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     null, options, options[1]);
             switch (answer) {
                 case 0:
-                    saveFile();
+                    saveFile(false);
                     runFile();
                     break;
                 case 1:
                     return;
             }
         } else {
+            prepareFileForSendPraat();
             runFile();
         }
     }//GEN-LAST:event_menuFileRunActionPerformed
@@ -899,6 +908,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         tab = "    ";
         tabLen = tab.length();
     }//GEN-LAST:event_radioTabWidth4ActionPerformed
+
+    private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
+        // TODO add your handling code here:
+        saveFile(true);
+    }//GEN-LAST:event_menuFileSaveAsActionPerformed
 
     public static void searchAndReplaceEscapeListener(final JDialog dialog) {
 
@@ -1097,8 +1111,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         }
     }
 
-    private void saveFile() {
-        if (file != null) {
+    private void saveFile(Boolean saveAs) {
+        if (file != null && !saveAs) {
             try {
                 // overwrite backup:
 //                backup.delete();
@@ -1144,6 +1158,26 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             } else {
                 System.out.println("File access cancelled by user.");
             }
+        }
+        prepareFileForSendPraat();
+    }
+
+    private void prepareFileForSendPraat() {
+        /*
+         * THE FOLLOWING DEALS WITH A QUIRK OF SENDPRAAT:
+         * the path to the file might contain spaces, which sendpraat cannot
+         * handle; we therefore need to give sendpraat the name of the file
+         * without the full path, but in order to find the file in this case,
+         * sendpraat needs the file to be located in ~/.praat-dir/; the most
+         * hassle-free way to deal with this is just to make a copy there...
+         */
+        File runFile = new File(userHome + fileSep + ".praat-dir"
+                + fileSep + "PraatEditMessageToPraat");
+        try (FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false)) {
+            textPane.write(fw);
+        } catch (IOException ex) {
+            System.err.println("Copy of script for sendpraat couldn't be written"
+                    + " to " + userHome + fileSep + ".praat-dir .");
         }
     }
 
@@ -1227,27 +1261,17 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void runFile() {
-        System.err.println("Sending script to Praat via " + System.getProperty("user.home")
-                + System.getProperty("file.separator") + "sendpraat");
+        System.err.println("Sending script to Praat via " + userHome
+                + fileSep + "sendpraat");
         try {
-//            System.err.println(file.getAbsolutePath().toString());
-//            System.err.println(System.getProperty("user.dir") + System.getProperty("file.separator") + "sp");
-//            System.err.println(System.getProperty("user.dir")
-//                    + System.getProperty("file.separator") + "sendpraat");
-//            Process p = new ProcessBuilder(System.getProperty("user.dir")
-//                    + System.getProperty("file.separator") + "sendpraat", "praat", "execute "
-//                    + "\"" + file.getAbsolutePath() + "\"").start();
             String[] cmd = new String[3];
-            cmd[0] = System.getProperty("user.home")
-                    + System.getProperty("file.separator") + "sendpraat";
+            cmd[0] = userHome + fileSep + "sendpraat";
             cmd[1] = "praat";
-//            cmd[2] = "execute " + "\"" + file.getAbsolutePath() + "\"";
-            // try this instead:
-            cmd[2] = "execute " + file.getAbsolutePath();
+            cmd[2] = "execute " + "PraatEditMessageToPraat";
             Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(cmd);
-//            Process p = new ProcessBuilder("sendpraat", "praat", "execute "
-//                    + "\"" + file.getAbsolutePath() + "\"").start();
+//            System.err.println(Arrays.toString(cmd));
+//            System.err.println(file.getParentFile().toString());
+            Process p = rt.exec(cmd); //, null, file.getParentFile());
         } catch (IOException e) {
             JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
                     + "you sure you have\nsendpraat in the same directory as PraatEdit?\n\n"
@@ -1258,6 +1282,10 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void exit() {
+        // remove the PraatEditMessageToPraatFile:
+        File runFile = new File(userHome + fileSep + ".praat-dir"
+                + fileSep + "PraatEditMessageToPraat");
+        runFile.delete();
         savePreferences();
         setVisible(false);
         dispose();
@@ -1309,7 +1337,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                             null, options, options[2]);
                     switch (answer) {
                         case 0:
-                            saveFile();
+                            saveFile(false);
                             exit();
                             break;
                         case 1:
@@ -1491,7 +1519,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     };
 
     protected class OpenFileTask extends SwingWorker<Void, Void> {
-       
+
         /*
          * Load and parse file. Executed in background thread.
          */
@@ -1587,7 +1615,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             updateLineNumbers(textPane.getText(), true);
             textPane.updateUI();
             // reset the title of the frame, but only if a file has actually been
-            // selected:
+            // selected:you
             if (filename != null) {
                 setTitle(filename + " - PraatEdit");
             }
@@ -1663,6 +1691,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JMenuItem menuFileOpen;
     private javax.swing.JMenuItem menuFileRun;
     private javax.swing.JMenuItem menuFileSave;
+    private javax.swing.JMenuItem menuFileSaveAs;
     private javax.swing.JMenuItem menuFileSaveNew;
     private javax.swing.JMenuItem menuFileSaveOpen;
     private javax.swing.JMenuItem menuFileSaveRun;
