@@ -92,7 +92,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private PraatDocument doc = new PraatDocument();
     private OpenFileTask openTask;
     private String filename;
-    private Boolean openingFile;
+    private Boolean openingFile = false;
 
     /**
      * Creates new form praatEdit
@@ -1586,7 +1586,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             // a file:
             updateLineNumbers(textPane.getText(), true);
             textPane.updateUI();
-            setTitle(filename + " - PraatEdit");
+            // reset the title of the frame, but only if a file has actually been
+            // selected:
+            if (filename != null) {
+                setTitle(filename + " - PraatEdit");
+            }
             loadingProgressFrame.setVisible(false);
             openingFile = false;
         }
