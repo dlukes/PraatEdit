@@ -64,7 +64,7 @@ Setup
 =====
 
 1. Download the repository in a zipped file either by pressing the ZIP button
-   with a cloud at the top of the page, or clicking
+   with a cloud at the [top of the page](#), or clicking
    [here](https://github.com/dafydd-lukes/PraatEdit/archive/master.zip).
 2. Extract the PraatEdit-master/dist subdirectory to the folder of your choice
    on your hard drive. NOTE: You need the whole folder, i.e. including any
@@ -72,7 +72,7 @@ Setup
 3. If you don't want to play around with the source code, you don't need any of
    the other files.
 4. If you want to send your scripts to a running instance of Praat to execute,
-   consult the section Sendpraat.
+   consult the section [Sendpraat](#sendpraat).
 5. Run the program by double-clicking on PraatEdit.jar in the dist folder, or by
    opening a command line, changing directory to the folder where PraatEdit.jar
    is located and executing `java -jar PraatEdit.jar`. (If double-clicking
@@ -107,8 +107,8 @@ Troubleshooting
 7. Something really weird going on? Run PraatEdit from the commandline, round up
    any error messages that may appear and let me know about them via github.
 
-Sendpraat
-=========
+<a id="sendpraat"></a>Sendpraat
+===============================
 
 For PraatEdit to be able to send the contents of your script to Praat to run,
 you need to have the program `sendpraat` located in your home folder (in
