@@ -1,0 +1,126 @@
+Credits
+=======
+
+Code written/cobbled together from snippets found on the Web by David Lukeš,
+2013\. You may redistribute and modify it all you like, provided that you make
+the source code of your modified versions openly available on the Web. Giving
+credit is appreciated but not required :)
+
+Disclaimer
+==========
+
+PraatEdit is not in any way associated with the program Praat or its makers,
+Paul Boersma and David Weenink. Its shortcomings and failures are entirely my
+own and should not reflect negatively on the great piece of software that is
+Praat.
+
+This project was undertaken as part of an introductory course on Java, by
+someone who has little to no prior experience with GUI programming. I know I got
+in way over my head, and the code is correspondingly ugly, non-idiomatic or just
+plain wrong in places. If you edit it using NetBeans and its helper features,
+it's marginally less of a mess, but one can't hide it's more of an overgrown
+hack rather than a full-fledged, well-behaved, cleanly architectured project.
+Still, if you find PraatEdit to your liking and it works for you, great! Please
+just remember that, as the GNU GPL says, the program is provided  "'as is'
+without warranty of any kind, expressed or implied, including, but not limited
+to, the implied warranties of merchantability and fitness for a particular
+purpose."
+
+Warning
+=======
+
+PraatEdit is a toy text editor, not an industrial strength one like Vim. It's
+meant for editing small Praat scripts, a couple of hundred lines is the largest
+file I've tried to open. Don't try to open humongous files in it, they'll
+definitely take too long to parse, and who knows, worse things yet might happen.
+
+Description, Features & Known Bugs
+==================================
+
+PraatEdit is a simple script editor with syntax highlighting (sort of) for the
+Praat speech analysis software environment. It is meant as an alternative to the
+built-in editor, and thanks to Paul Boersma's program sendpraat, it also allows
+the user to directly execute their Praat script from within the application,
+provided that an instance of Praat is running. Other features and/or known bugs
+include:
+
+* keyboard shortcuts for commenting out/uncommenting or indenting/unindenting a
+  piece of code
+* auto-indenting
+* search and replace with regular expressions, but be careful and save often, I
+  didn't have the time to test it extensively (Regular expressions work only in
+  Find box. Furthermore, currently, the Replace box doesn't support capturing
+  parentheses. It does support the following escape sequences: \n, \r, \t.)
+* tabs are automatically replaced with spaces (yep, that's not a bug)
+* settings persistent across sessions
+* undo/redo support is currently very (VERY) crude, but hey, it can only get
+  better
+* (known disadvantage) as of now, a larger script might take a while to load
+  (2-3s), partly due undoubtedly to some suboptimal code, partly to the fact
+  that the syntax highlighter currently parses the whole file before displaying
+  it; I'd really like to get around to fixing that, but I can't promise anything
+
+Setup
+=====
+
+1. Press [download as zip].
+2. Extract the [dist direc] to the folder of your choice on your hard drive.
+   NOTE: You need the whole folder, i.e. including any subfolders.
+3. If you want to send your scripts to a running instance of Praat to execute,
+   consult the section Sendpraat.
+4. Run the program by double-clicking on PraatEdit.jar, or by opening a command
+   line, changing directory to the folder where PraatEdit.jar is located and
+   executing java -jar PraatEdit.jar.
+
+Troubleshooting
+===============
+
+1. PraatEdit not working/crashing gracelessly? Try upgrading to a more recent
+   version of Java (and make sure Oracle doesn't smuggle the obnoxious Ask
+   Toolbar into your browser in the process). PraatEdit was tested on Ubuntu
+   12\.04 and Windows 7 with Java 1.7.
+2. The text of your script looks weird, with interspersed spaces, unrecognized
+   characters etc.? It was probably saved in UTF-16, UTF-32 or some other
+   unusual format. Please convert it to ASCII, UTF-8 or your current locale. You
+   can also re-save it using Praat's built-in editor.
+3. If your OS is a flavor of GNU/Linux and double-clicking PraatEdit.jar doesn't
+   start the program, make sure the file's executable flag is on (chmod a+x
+   PraatEdit.jar in the file's directory in the terminal).
+4. Should one of your files be corrupted following to an unexpected crash, the
+   first thing to do is to go to the backup version you're keeping (aren't
+   you?). The next thing to do is to check the directory where the corrupted
+   file was stored for a backup file written by PraatEdit. Its name is the same
+   as the original file, with an extra tilde ("~") appended.
+5. Experiencing behavior that you're pretty confident is not a feature, but a
+   bug? Let me know via github (preferably with exact steps to replicate)!
+6. Do let me know in particular if you notice a possible improvement/correction
+   regarding syntax highlighting. I'm not an expert on the arcana of the Praat
+   scripting language, so this can easily happen, and chances are it'll be a
+   quick fix.
+7. Something really weird going on? Run PraatEdit from the commandline, round
+   up any error messages that may appear and let me know about them via github.
+
+Sendpraat
+=========
+
+For PraatEdit to be able to send the contents of your script to Praat to run,
+you need to have the program sendpraat available in your hom folder. To ensure
+that, follow these steps:
+
+1. Download Paul Boersma's program sendpraat from ...
+2. Make sure the program is called exactly "sendpraat" (or "sendpraat.exe" on
+   Windows).
+3. Put it in your home folder (e.g. /home/username/ on GNU/Linux or
+   C:\Users\username\ on Windows).
+4. On GNU/Linux, make sure that sendpraat has the executable flag on (e.g.  by
+   running chmod a+x sendpraat in your home directory).
+
+Note for programmers
+====================
+
+If you're considering modifying PraatEdit to improve its performance, let me
+kindly suggest a better use of your time: write a Praat syntax highlighting file
+for Vim, and a function which sends the content of the buffer to Praat via
+sendpraat. And let me know when it's available, 'cause I'd love to use it!
+There's no need to reinvent the wheel (I did it because I needed a class
+project), and Vim's the best wheel around, as we all know ;)
