@@ -129,6 +129,9 @@ ensure that, follow these steps:
    Windows); if not, rename it to `sendpraat` (or `sendpraat.exe` on Windows).
 3. Put it in your home folder (e.g. `/home/username/` on GNU/Linux or
    `C:\Users\username\` on Windows).
+3. You can also put it elsewhere, but in that case, you have to set the location
+   of `sendpraat` accordingly via the Preferences->Set sendpraat path... dialog,
+   so that PraatEdit knows where to find it.
 4. On GNU/Linux, make sure that sendpraat has the executable flag on (e.g. by
    running `chmod a+x sendpraat` in your home directory).
 5. In any case, make sure that the **name of your script doesn't contain any

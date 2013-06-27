@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -32,7 +31,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import praat.format;
@@ -58,9 +56,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private static final int lineSepLen = 1;
     // keep track of personal settings:
     private static int fontSize = 14;
-    private static String praatEditRCStr = System.getProperty("user.home")
-            + System.getProperty("file.separator") + ".praateditrc";
-    private File praatEditRC = new java.io.File(praatEditRCStr);
     // keep track of whether document should be saved before closing:
     private Boolean documentModified = false;
     // stuff for opening and saving files:
@@ -100,9 +95,19 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private Boolean doingUndoRedo = false;
     private static final String fileSep = System.getProperty("file.separator");
     private static final String userHome = System.getProperty("user.home");
+    // location of sendpraat initialized to its default value (which is subject 
+    // to change):
+    private String spLocation = userHome;
     private static final Boolean osIsWindows =
             System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-    private static final String praatDir = osIsWindows ? "Praat" : ".praat-dir";
+    // praatDir by contrast cannot change (Praat itself depends upon it):
+    private static final String praatDir = userHome + fileSep
+            + (osIsWindows ? "Praat" : ".praat-dir");
+    // neither can the location of .praateditrc (or else we run into a bootstrapping
+    // paradox):
+    private static final String rcLocation = userHome;
+    private static final String praatEditRCStr = rcLocation + fileSep + ".praateditrc";
+    private static final File praatEditRC = new java.io.File(praatEditRCStr);
 //    // a stack which remembers 100 undos:
 //    private FixedStack<UndoableEdit> undoFixedStack;
 //    private FixedStack<UndoableEdit> redoFixedStack;
@@ -164,6 +169,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         fileOpen = new javax.swing.JFileChooser();
         fileSave = new javax.swing.JFileChooser();
+        dirSelect = new javax.swing.JFileChooser();
         searchAndReplaceDialog = new javax.swing.JDialog();
         replaceTextField = new javax.swing.JTextField();
         findTextField = new javax.swing.JTextField();
@@ -192,6 +198,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             }
         };
         textPane.setCaretColor(Color.LIGHT_GRAY);
+        setPathsFrame = new javax.swing.JDialog();
+        jLabel4 = new javax.swing.JLabel();
+        setPathSPTextField = new javax.swing.JTextField();
+        setPathsConfirmButton = new javax.swing.JButton();
+        setPathsSPChooseButton = new javax.swing.JButton();
         scrollPane = scrollPane = new javax.swing.JScrollPane(noWrapPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(20);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(20);
@@ -229,6 +240,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         radioTabWidth2 = new javax.swing.JRadioButtonMenuItem();
         radioTabWidth3 = new javax.swing.JRadioButtonMenuItem();
         radioTabWidth4 = new javax.swing.JRadioButtonMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        menuPreferencesSetPaths = new javax.swing.JMenuItem();
 
         fileOpen.setApproveButtonText("Open");
         fileOpen.setApproveButtonToolTipText("Open file as specified");
@@ -238,6 +251,9 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         fileSave.setApproveButtonText("Save");
         fileSave.setApproveButtonToolTipText("Save file as specified");
         fileSave.setDialogTitle("Save as");
+
+        dirSelect.setDialogTitle("Select directory");
+        dirSelect.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         searchAndReplaceDialog.setTitle("Search & Replace");
         searchAndReplaceDialog.setResizable(false);
@@ -364,6 +380,58 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         textPane.setForeground(new java.awt.Color(204, 204, 204));
         textPane.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         textPane.setMinimumSize(new java.awt.Dimension(6000, 2300));
+
+        setPathsFrame.setTitle("Set sendpraat path...");
+
+        jLabel4.setText("Location of the sendpraat program:");
+
+        setPathSPTextField.setEditable(false);
+        setPathSPTextField.setText("jTextField1");
+        setPathSPTextField.setFocusable(false);
+
+        setPathsConfirmButton.setText("OK");
+        setPathsConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setPathsConfirmButtonActionPerformed(evt);
+            }
+        });
+
+        setPathsSPChooseButton.setText("Choose...");
+        setPathsSPChooseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setPathsSPChooseButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout setPathsFrameLayout = new javax.swing.GroupLayout(setPathsFrame.getContentPane());
+        setPathsFrame.getContentPane().setLayout(setPathsFrameLayout);
+        setPathsFrameLayout.setHorizontalGroup(
+            setPathsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(setPathsFrameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(setPathsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(setPathsConfirmButton)
+                    .addGroup(setPathsFrameLayout.createSequentialGroup()
+                        .addGroup(setPathsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(setPathSPTextField))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(setPathsSPChooseButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        setPathsFrameLayout.setVerticalGroup(
+            setPathsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(setPathsFrameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(setPathsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(setPathSPTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(setPathsSPChooseButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(setPathsConfirmButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("PraatEdit");
@@ -621,6 +689,15 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         menuPreferencesTabWidth.add(radioTabWidth4);
 
         menuPreferences.add(menuPreferencesTabWidth);
+        menuPreferences.add(jSeparator4);
+
+        menuPreferencesSetPaths.setText("Set sendpraat path...");
+        menuPreferencesSetPaths.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuPreferencesSetPathsActionPerformed(evt);
+            }
+        });
+        menuPreferences.add(menuPreferencesSetPaths);
 
         menuBar.add(menuPreferences);
 
@@ -982,6 +1059,30 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         saveFile(true);
     }//GEN-LAST:event_menuFileSaveAsActionPerformed
 
+    private void menuPreferencesSetPathsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPreferencesSetPathsActionPerformed
+        // TODO add your handling code here:
+        setPathSPTextField.setText(spLocation);
+        setPathsFrame.setLocationRelativeTo(rootPane);
+        setPathsFrame.pack();
+        setPathsFrame.setVisible(true);
+    }//GEN-LAST:event_menuPreferencesSetPathsActionPerformed
+
+    private void setPathsSPChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setPathsSPChooseButtonActionPerformed
+        // TODO add your handling code here:
+        int returnVal = dirSelect.showDialog(this, "OK");
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File dir = dirSelect.getSelectedFile();
+            String path = dir.getAbsolutePath();
+            setPathSPTextField.setText(path);
+        }
+    }//GEN-LAST:event_setPathsSPChooseButtonActionPerformed
+
+    private void setPathsConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setPathsConfirmButtonActionPerformed
+        // TODO add your handling code here:
+        spLocation = setPathSPTextField.getText();
+        setPathsFrame.setVisible(false);
+    }//GEN-LAST:event_setPathsConfirmButtonActionPerformed
+
     public static void searchAndReplaceEscapeListener(final JDialog dialog) {
 
         ActionListener escListener = new ActionListener() {
@@ -1240,13 +1341,12 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
          * hassle-free way to deal with this is just to make a copy there...
          * EDIT: and of course, ~/.praat-dir is ~/Praat under Windows. (sigh)
          */
-        File runFile = new File(userHome + fileSep + praatDir
-                + fileSep + "PraatEditMessageToPraat");
+        File runFile = new File(praatDir + fileSep + "PraatEditMessageToPraat");
         try (FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false)) {
             textPane.write(fw);
         } catch (IOException ex) {
             System.err.println("Copy of script for sendpraat couldn't be written"
-                    + " to " + userHome + fileSep + ".praat-dir .");
+                    + " to " + praatDir + " .");
         }
     }
 
@@ -1330,11 +1430,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void runFile() {
-        System.err.println("Sending script to Praat via " + userHome
-                + fileSep + "sendpraat");
+        System.err.println("Sending script to Praat via " + spLocation + fileSep
+                + "sendpraat");
         try {
             String[] cmd = new String[3];
-            cmd[0] = userHome + fileSep + "sendpraat";
+            cmd[0] = spLocation + fileSep + "sendpraat";
             cmd[1] = "praat";
             cmd[2] = "execute " + "PraatEditMessageToPraat";
             Runtime rt = Runtime.getRuntime();
@@ -1342,8 +1442,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            System.err.println(file.getParentFile().toString());
             Process p = rt.exec(cmd); //, null, file.getParentFile());
         } catch (IOException e) {
+//            "fas fas dfsafsfsfsdf f s".
             JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
-                    + "you sure you have\nsendpraat in the same directory as PraatEdit?\n\n"
+                    + "you sure you have sendpraat in the directory specified under \n"
+                    + "Preferences->Set sendpraat path...? If not, please move "
+                    + "sendpraat there, or change the path.\n\n"
                     + e,
                     "Error running script", JOptionPane.ERROR_MESSAGE);
             System.err.println(e);
@@ -1463,8 +1566,10 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             }
             // read in and set auto-indenting preferences:
             checkBoxAutoIndent.setSelected(Boolean.parseBoolean(br.readLine().split(" ")[1]));
+            // read in and set sendpraat path:
+            spLocation = br.readLine().split(" ")[1];
             br.close();
-        } catch (IOException | NumberFormatException e) {
+        } catch (Exception e) {
             if (e instanceof IOException) {
                 JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file in\nyour home directory couldn't be read.",
                         "Inaccessible preferences file", JOptionPane.ERROR_MESSAGE);
@@ -1476,9 +1581,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void savePreferences() {
+        String sep = System.getProperty("line.separator");
         String prefs = "FontSize " + Integer.toString(fontSize)
-                + "\nTabWidth " + Integer.toString(tabLen)
-                + "\nAutoIndent " + Boolean.toString(checkBoxAutoIndent.isSelected());
+                + sep + "TabWidth " + Integer.toString(tabLen)
+                + sep + "AutoIndent " + Boolean.toString(checkBoxAutoIndent.isSelected())
+                + sep + "SendpraatDir " + spLocation;
 //        System.err.println(praatEditRC.getAbsoluteFile().toString());
 //        System.err.println(prefs);
         try {
@@ -1493,7 +1600,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         }
         UndoableEdit[] arr = new UndoableEdit[4];
     }
-    
+
     /*
      * A fixed size stack class, for limited undo/redo. (was
      * only useful for attempt at smart undo/redo, which probably
@@ -1539,7 +1646,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            super.redoTo(e);
 //        }
 //    }
-
     protected class PraatUndoRedo implements UndoableEditListener {
 
         @Override
@@ -1804,6 +1910,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBoxMenuItem checkBoxAutoIndent;
     private javax.swing.JCheckBox checkBoxUseRegex;
+    private javax.swing.JFileChooser dirSelect;
     private javax.swing.JFileChooser fileOpen;
     private javax.swing.JFileChooser fileSave;
     private javax.swing.JButton findAllButton;
@@ -1812,9 +1919,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.ButtonGroup fontSizeButtonGroup;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JProgressBar loadingProgressBar;
     private javax.swing.JDialog loadingProgressFrame;
     private javax.swing.JMenuBar menuBar;
@@ -1838,6 +1947,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JMenuItem menuFileSaveRun;
     private javax.swing.JMenu menuPreferences;
     private javax.swing.JMenu menuPreferencesFontSize;
+    private javax.swing.JMenuItem menuPreferencesSetPaths;
     private javax.swing.JMenu menuPreferencesTabWidth;
     private javax.swing.JPanel noWrapPanel;
     private javax.swing.JRadioButtonMenuItem radioFontSize10;
@@ -1853,6 +1963,10 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JTextField replaceTextField;
     private javax.swing.JScrollPane scrollPane;
     private javax.swing.JDialog searchAndReplaceDialog;
+    private javax.swing.JTextField setPathSPTextField;
+    private javax.swing.JButton setPathsConfirmButton;
+    private javax.swing.JDialog setPathsFrame;
+    private javax.swing.JButton setPathsSPChooseButton;
     private javax.swing.ButtonGroup tabWidthButtonGroup;
     private javax.swing.JTextPane textPane;
     // End of variables declaration//GEN-END:variables
