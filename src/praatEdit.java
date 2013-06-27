@@ -787,23 +787,23 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
     private void menuFileRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileRunActionPerformed
         // TODO add your handling code here:
-        if (documentModified) {
-            Object[] options = {"Yes", "No"};
-            int answer = JOptionPane.showOptionDialog(rootPane,
-                    "Script must be saved before being run. Save and run?", "Save script?",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, options, options[1]);
-            switch (answer) {
-                case 0:
-                    saveFile(false);
-                    runFile();
-                    break;
-                case 1:
-            }
-        } else {
-            prepareFileForSendPraat();
-            runFile();
-        }
+//        if (documentModified) {
+//            Object[] options = {"Yes", "No"};
+//            int answer = JOptionPane.showOptionDialog(rootPane,
+//                    "Script must be saved before being run. Save and run?", "Save script?",
+//                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+//                    null, options, options[1]);
+//            switch (answer) {
+//                case 0:
+//                    saveFile(false);
+//                    runFile();
+//                    break;
+//                case 1:
+//            }
+//        } else {
+        prepareFileForSendPraat();
+        runFile();
+//        }
     }//GEN-LAST:event_menuFileRunActionPerformed
 
     private void menuEditCommentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditCommentActionPerformed
