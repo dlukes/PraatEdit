@@ -57,8 +57,10 @@ include:
 * tabs are automatically replaced with spaces (yep, that's not a bug)
 * settings persistent across sessions
 * undo/redo support is currently very (VERY) crude, but hey, it can only get
-  better; the rule of thumb is: **don't hold Ctrl-Z/Ctrl-Y down**, press it each
-  time individually (I know it's tedious), and PraatEdit won't crash on you
+  better; the rule of thumb is: don't rely on it too much, don't be surprised if
+  syntax highlighting gets restored only after you start typing regularly again,
+  and above all, **don't hold Ctrl-Z/Ctrl-Y down**, press it each time
+  individually (I know it's tedious), and PraatEdit shouldn't hang on you
 * (known disadvantage) as of now, a larger script might take a while to load
   (2-3s), partly due undoubtedly to some suboptimal code, partly to the fact
   that the syntax highlighter currently parses the whole file before displaying

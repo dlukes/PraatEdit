@@ -62,7 +62,7 @@ public class format {
     private static final AttributeSet attrVarContent = cont.addAttribute(
             cont.getEmptySet(), StyleConstants.Foreground, colors.PRAATVARCONTENT);
 
-    public static String highlightCurrentLine(DefaultStyledDocument doc, UndoableEditListener uel, String str, int offset) throws BadLocationException {
+    public static String highlightCurrentLine(DefaultStyledDocument doc, String str, int offset) throws BadLocationException {
         /*
          * Find what the current line (the line just modified) is based on the 
          * offset of the string str inserted, parse it and apply syntax highlighting.

@@ -81,8 +81,9 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private static final AttributeSet searchNoHighlight = cont.addAttribute(
             cont.getEmptySet(), StyleConstants.Background, Color.DARK_GRAY);
     // stuff for smart undo/redo:
+//    protected UndoManager undoRedo = new UndoManager();
     protected UndoManager undoRedo = new UndoManager();
-    private final UndoableEditListener uel = new PraatUndoRedo();
+//    private final UndoableEditListener undoRedo = new PraatUndoRedo();
     private static final String lineSepRegex = "(\\r\\n|\\r|\\n)";
     private static final Pattern lineSepPattern = Pattern.compile(lineSepRegex);
     // stuff for line numbers:
@@ -95,9 +96,10 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private Boolean openingFile = false;
     private static final String fileSep = System.getProperty("file.separator");
     private static final String userHome = System.getProperty("user.home");
-    private static final Boolean osIsWindows = 
+    private static final Boolean osIsWindows =
             System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
     private static final String praatDir = osIsWindows ? "Praat" : ".praat-dir";
+
     /**
      * Creates new form praatEdit
      */
@@ -135,7 +137,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         textPane.setBackground(Color.DARK_GRAY);
 
         // undo/redo:
-        doc.addUndoableEditListener(uel);
+        doc.addUndoableEditListener(undoRedo);
 
         // load personal settings:
         loadPreferences();
@@ -838,20 +840,51 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         searchOffset = textPane.getSelectionStart();
     }//GEN-LAST:event_replaceTextFieldKeyTyped
 
+    /*
+     * undo/redo beyond the beginning of the document throw BadLocationExceptions,
+     * which is presumably related to the fact that the undoManager gets unattached
+     * from the document at times, so the edits don't quite add up. once identifying
+     * "milestone" edits has been implemented (and the de-attaching/re-attaching
+     * code is scrapped), this probably shouldn't cause any problems. for now, let's
+     * at least check doc.getLength() as well in each undo/redo condition; it doesn't
+     * solve the problem, but it prevents PraatEdit from hanging.
+     */
     private void menuEditRedoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditRedoActionPerformed
         // TODO add your handling code here:
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
 //        for (int i = 0; i < 15; i++) {
-        if (undoRedo.canRedo()) {
+//        menuEditRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        if (undoRedo.canRedo() && doc.getLength() > 0) {
             undoRedo.redo();
         }
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//        }
+//        menuEditRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+//            }
+//        });
     }//GEN-LAST:event_menuEditRedoActionPerformed
 
     private void menuEditUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditUndoActionPerformed
         // TODO add your handling code here:
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
 //        for (int i = 0; i < 15; i++) {
-        if (undoRedo.canUndo()) {
+//        menuEditUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        if (undoRedo.canUndo() && doc.getLength() >= 0) {
             undoRedo.undo();
         }
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//        }
+//        menuEditUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+//            }
+//        });
     }//GEN-LAST:event_menuEditUndoActionPerformed
 
     private void radioFontSize10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize10ActionPerformed
@@ -1421,20 +1454,19 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         }
     }
 
-    protected class PraatUndoRedo implements UndoableEditListener {
-
-        @Override
-        public void undoableEditHappened(UndoableEditEvent e) {
-            // add edit to manager, update the menus:
-//            System.err.println(e.getEdit().toString());
-            undoRedo.addEdit(e.getEdit());
-            // the following is verbatim from Oracle, my case is different - if
-            // I want to update the menus, I'll have to change this:
-//            undoAction.updateUndoState();
-//            redoAction.updateRedoState();
-        }
-    }
-
+//    protected class PraatUndoRedo implements UndoableEditListener {
+//
+//        @Override
+//        public void undoableEditHappened(UndoableEditEvent e) {
+//            // add edit to manager, update the menus:
+////            System.err.println(e.getEdit().toString());
+//            undoRedo.addEdit(e.getEdit());
+//            // the following is verbatim from Oracle, my case is different - if
+//            // I want to update the menus, I'll have to change this:
+////            undoAction.updateUndoState();
+////            redoAction.updateRedoState();
+//        }
+//    }
     protected class PraatDocument extends DefaultStyledDocument {
 
         @Override
@@ -1451,14 +1483,14 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
             // we don't want the highlighting et al. to figure in the undo/redo list -->
             // deregesiter the listener:
-            doc.removeUndoableEditListener(uel);
+            doc.removeUndoableEditListener(undoRedo);
 
             // ensure that new strings are always inserted non-highlighted:
             doc.setCharacterAttributes(offset, str.length(), searchNoHighlight, false);
             if (!openingFile) {
                 updateLineNumbers(str, true);
             }
-            String line = format.highlightCurrentLine(this, uel, str, offset);
+            String line = format.highlightCurrentLine(this, str, offset);
             // auto-indenting (really crummy, but it mostly works, so let's leave 
             // it for now); remember that when a newline is inserted, the variable
             // line corresponds to the preceding line (i.e. the on we want in order
@@ -1497,7 +1529,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             }
             documentModified = true;
             // re-register the edit listener now that we're done:
-            doc.addUndoableEditListener(uel);
+            doc.addUndoableEditListener(undoRedo);
         }
 
         @Override
@@ -1506,14 +1538,14 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             super.remove(offset, len);
             // we don't want the highlighting et al. to figure in the undo/redo list -->
             // deregesiter the listener:
-            doc.removeUndoableEditListener(uel);
+            doc.removeUndoableEditListener(undoRedo);
             if (!openingFile) {
                 updateLineNumbers(str, false);
             }
-            format.highlightCurrentLine(this, uel, "", offset);
+            format.highlightCurrentLine(this, "", offset);
             documentModified = true;
             // re-register the edit listener now that we're done:
-            doc.addUndoableEditListener(uel);
+            doc.addUndoableEditListener(undoRedo);
         }
     };
 
