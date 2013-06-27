@@ -1567,13 +1567,16 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             // read in and set auto-indenting preferences:
             checkBoxAutoIndent.setSelected(Boolean.parseBoolean(br.readLine().split(" ")[1]));
             // read in and set sendpraat path:
-            spLocation = br.readLine().split(" ")[1];
+            spLocation = br.readLine().split(" ", 2)[1];
+//            System.err.println(spLocation);
             br.close();
         } catch (Exception e) {
             if (e instanceof IOException) {
+                System.err.println(e);
                 JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file in\nyour home directory couldn't be read.",
                         "Inaccessible preferences file", JOptionPane.ERROR_MESSAGE);
             } else {
+                System.err.println(e);
                 JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file in your\nhome directory is invalid. It will be reset.",
                         "Invalid preferences file", JOptionPane.ERROR_MESSAGE);
             }
