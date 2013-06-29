@@ -12,7 +12,8 @@ credit is appreciated but not required :)
 Disclaimer
 ==========
 
-**PraatEdit is not in any way associated with the program Praat or its makers,
+**PraatEdit is not in any way associated with the program [Praat]
+(http://www.fon.hum.uva.nl/praat) or its makers,
 Paul Boersma and David Weenink.** Its shortcomings and failures are entirely my
 own and should not reflect negatively on the great piece of software that is
 Praat.
