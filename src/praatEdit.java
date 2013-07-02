@@ -447,6 +447,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         noWrapPanel.add(textPane);
         getContentPane().add(scrollPane, java.awt.BorderLayout.CENTER);
 
+        menuFile.setMnemonic('F');
         menuFile.setText("File");
 
         menuFileNew.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
@@ -524,6 +525,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         menuBar.add(menuFile);
 
+        menuEdit.setMnemonic('E');
         menuEdit.setText("Edit");
 
         menuEditUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
@@ -602,6 +604,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         menuBar.add(menuEdit);
 
+        menuPreferences.setMnemonic('P');
         menuPreferences.setText("Preferences");
 
         checkBoxAutoIndent.setSelected(true);
@@ -957,9 +960,14 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             undoRedo.redo();
 //            System.err.println(undoRedo.canUndo());
         }
-        // and now remove the addition:
+        // and now make the addition:
         if (undoRedo.canRedo()) {
 //            System.err.println("Addition undone");
+            undoRedo.redo();
+        }
+        // perform any additional syntax highlighting that might have occurred
+        // after inserting the string:
+        while (undoRedo.canRedo() && undoRedo.getRedoPresentationName().contains("style")) {
             undoRedo.redo();
         }
         // update the line numbers:
@@ -1760,7 +1768,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             if (!openingFile) {
                 updateLineNumbers(str, false);
             }
-            format.highlightCurrentLine(this, "", offset);
+            format.highlightCurrentLine(this, str, offset);
             documentModified = true;
             // re-register the edit listener now that we're done:
 //            doc.addUndoableEditListener(unEdList);

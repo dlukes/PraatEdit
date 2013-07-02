@@ -5,6 +5,7 @@
 package praat;
 
 import java.awt.Color;
+import java.util.Arrays;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -73,6 +74,7 @@ public class format {
         ongoingString = false;
         ongoingVarContent = false;
         
+        System.err.println(offset);
         String text = doc.getText(0, doc.getLength());
 
         // the offset relative to which the current line is determined:
@@ -86,7 +88,7 @@ public class format {
         // shifted w.r.t. to the real position of the text:
         String line = text.substring(startOfLine, endOfLine);
         String[] parsedLine = line.split(praatZeroWidthDelimiters);
-//        System.out.println(Arrays.toString(parsedLine) + parsedLine.length); //DEBUG
+        System.err.println(Arrays.toString(parsedLine) + parsedLine.length); //DEBUG
 
         // set up initial line offset:
         int lineOffset = 0;

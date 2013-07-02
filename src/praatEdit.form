@@ -299,6 +299,7 @@
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuFile">
           <Properties>
+            <Property name="mnemonic" type="int" value="70"/>
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
@@ -396,6 +397,7 @@
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuEdit">
           <Properties>
+            <Property name="mnemonic" type="int" value="69"/>
             <Property name="text" type="java.lang.String" value="Edit"/>
           </Properties>
           <SubComponents>
@@ -495,6 +497,7 @@
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuPreferences">
           <Properties>
+            <Property name="mnemonic" type="int" value="80"/>
             <Property name="text" type="java.lang.String" value="Preferences"/>
           </Properties>
           <SubComponents>
