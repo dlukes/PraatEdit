@@ -77,12 +77,17 @@ public class format {
 //        System.err.println(offset);
         String text = doc.getText(0, doc.getLength());
 
-        // the offset relative to which the current line is determined:
-        int anchor = str.equals(lineSep) ? offset - 1 : offset;
+        // the offset relative to which the end of the current line is determined:
+        int endAnchor = str.equals(lineSep) ? offset - 1 : offset;
+        // the offset relative to which the start of the current line is determined:
+        // (should be 1 less than endAnchor if possible, or else endOfLine will falsely
+        // equal startOfLine if the edit consists of removing chars at the end of the
+        // line):
+        int startAnchor = (endAnchor > 0) ? endAnchor - 1 : endAnchor;
         // determine start and end of line:
-        int endOfLine = text.indexOf(lineSep, anchor);
+        int endOfLine = text.indexOf(lineSep, endAnchor);
         endOfLine = (endOfLine == -1) ? text.length() : endOfLine;
-        int startOfLine = text.lastIndexOf(lineSep, anchor);
+        int startOfLine = text.lastIndexOf(lineSep, startAnchor);
         startOfLine = (startOfLine == -1) ? 0 : startOfLine;
         // don't use .trim() on the line, otherwise the highlighting will come out
         // shifted w.r.t. to the real position of the text:
