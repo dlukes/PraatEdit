@@ -396,7 +396,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         textPane.setDropMode(javax.swing.DropMode.INSERT);
         textPane.setMinimumSize(new java.awt.Dimension(6000, 2300));
 
-        setPathsFrame.setTitle("Set sendpraat path...");
+        setPathsFrame.setTitle("Set paths...");
 
         jLabel4.setText("Location of the sendpraat program:");
 
@@ -1556,7 +1556,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            "fas fas dfsafsfsfsdf f s".
             JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
                     + "you sure you have sendpraat in the directory specified under \n"
-                    + "Preferences->Set sendpraat path...? If not, please move "
+                    + "Preferences->Set paths...? If not, please move "
                     + "sendpraat there, or change the path.\n\n"
                     + e,
                     "Error running script", JOptionPane.ERROR_MESSAGE);
