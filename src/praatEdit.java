@@ -164,7 +164,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         // load personal settings:
         loadPreferences();
-        
+
         // load last fileChooser directory from last session:
         fileOpenSave.setCurrentDirectory(new File(lastFileChooseDir));
     }
@@ -944,29 +944,37 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         // TODO add your handling code here:
         String oldStr = findTextField.getText();
         String newStr = replaceTextField.getText();
-        newStr = treatEscapeSequences(newStr);
-        int docLen = doc.getLength();
-        doc.setCharacterAttributes(0, docLen, searchNoHighlight, false);
-        // reset searchOffset (we need to start the search from the beginning here):
-        searchOffset = 0;
-        Boolean matchFound = true;
-        while (matchFound) {
-            matchFound = replaceNext(oldStr, newStr, docLen, false);
-            // the docLen is changing with each replace, we need to update it:
-            docLen = doc.getLength();
+        if (oldStr.length() > 0) {
+            newStr = treatEscapeSequences(newStr);
+            int docLen = doc.getLength();
+            doc.setCharacterAttributes(0, docLen, searchNoHighlight, false);
+            // reset searchOffset (we need to start the search from the beginning here):
+            searchOffset = 0;
+            Boolean matchFound = true;
+            while (matchFound) {
+                matchFound = replaceNext(oldStr, newStr, docLen, false);
+                // the docLen is changing with each replace, we need to update it:
+                docLen = doc.getLength();
+            }
+        } else {
+            JOptionPane.showMessageDialog(searchAndReplaceDialog, "Find box is empty, cannot replace.", "Search first", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_replaceAllButtonActionPerformed
 
     private void findAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findAllButtonActionPerformed
         // TODO add your handling code here:
         String str = findTextField.getText();
-        int docLen = doc.getLength();
-        doc.setCharacterAttributes(0, docLen, searchNoHighlight, false);
-        // reset searchOffset (we need to start the search from the beginning here):
-        searchOffset = 0;
-        Boolean matchFound = true;
-        while (matchFound) {
-            matchFound = findNext(str, docLen, false);
+        if (str.length() > 0) {
+            int docLen = doc.getLength();
+            doc.setCharacterAttributes(0, docLen, searchNoHighlight, false);
+            // reset searchOffset (we need to start the search from the beginning here):
+            searchOffset = 0;
+            Boolean matchFound = true;
+            while (matchFound) {
+                matchFound = findNext(str, docLen, false);
+            }
+        } else {
+            JOptionPane.showMessageDialog(searchAndReplaceDialog, "Find box is empty, nothing to find.", "Search first", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_findAllButtonActionPerformed
 

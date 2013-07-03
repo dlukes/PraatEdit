@@ -94,9 +94,9 @@ Troubleshooting
 
 Some problems, especially after downloading a new version of PraatEdit, might be
 solved by **deleting the old .praateditrc in your home directory**, thereby
-resetting PraatEdit to its "factory" defaults. (Apologies for having to re-configure
-your preferences afterwards, but the customization options of PraatEdit being
-limited, I hope it's an acceptable drawback.)
+resetting PraatEdit to its "factory" defaults. (Apologies for having to
+re-configure your preferences afterwards, but the customization options of
+PraatEdit being limited, I hope it's an acceptable drawback.)
 
 1. Praat giving you a cryptic error message when you try running your scripts?
    Chances are PraatEdit thinks your Praat configuration directory is elsewhere
@@ -118,7 +118,7 @@ limited, I hope it's an acceptable drawback.)
 3. If your OS is a flavor of GNU/Linux and double-clicking PraatEdit.jar doesn't
    start the program, make sure the file's executable flag is on (`chmod a+x
    PraatEdit.jar` in the file's directory in the terminal).
-4. Should one of your files be corrupted following to an unexpected crash, the
+4. Should one of your files be corrupted following an unexpected crash, the
    first thing to do is to go to the backup version you're keeping (aren't
    you?). The next thing to do is to check the directory where the corrupted
    file was stored for a backup file written by PraatEdit. Its name is the same
