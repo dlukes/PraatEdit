@@ -92,6 +92,12 @@ Setup
 Troubleshooting
 ===============
 
+Some problems, especially after downloading a new version of PraatEdit, might be
+solved by **deleting the old .praateditrc in your home directory**, thereby
+resetting PraatEdit to its "factory" defaults. (Apologies for having to re-configure
+your preferences afterwards, but the customization options of PraatEdit being
+limited, I hope it's an acceptable drawback.)
+
 1. Praat giving you a cryptic error message when you try running your scripts?
    Chances are PraatEdit thinks your Praat configuration directory is elsewhere
    than it really is; please set its location manually via the Preferences->Set
