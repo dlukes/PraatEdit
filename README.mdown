@@ -56,6 +56,9 @@ include:
   in Find box. Furthermore, currently, the Replace box doesn't support capturing
   parentheses. It does support the following escape sequences: \n, \r, \t.)
 * tabs are automatically replaced with spaces (yep, that's not a bug)
+* switch between **UTF-8** and your **current locale** as read/write encodings
+  (the recommended setting is to work with UTF-8 exclusively; if you change the
+  encoding, you need to reopen your current file for the change to take effect)
 * settings persistent across sessions
 * undo/redo support is currently crude, but hey, it can only get better; the
   rule of thumb is: don't rely on it too much and **don't hold Ctrl-Z/Ctrl-Y
@@ -74,7 +77,8 @@ Setup
    [here](https://github.com/dafydd-lukes/PraatEdit/archive/master.zip).
 2. Extract the PraatEdit-master/dist subdirectory to the folder of your choice
    on your hard drive. NOTE: You need the whole folder, i.e. including any
-   subfolders.
+   subfolders. If for some reason, you are stuck with Java [1.]6 on your
+   computer, use the dist-java6 folder instead.
 3. If you don't want to play around with the source code, you don't need any of
    the other files.
 4. If you want to send your scripts to a running instance of Praat to execute,
@@ -94,11 +98,15 @@ Troubleshooting
 1. PraatEdit not working/crashing gracelessly? Try upgrading to a more recent
    version of Java (and make sure Oracle doesn't smuggle the obnoxious Ask
    Toolbar into your browser in the process). PraatEdit was tested on Ubuntu
-   12\.04 and Windows 7 with Java 1.7.
+   12\.04 and Windows 7 with Java [1.]7. If for some reason you are stuck with
+   Java [1.]6, switch to the Java [1.]6 build of PraatEdit contained in the
+   dist-java6 folder.
 2. The text of your script looks weird, with interspersed spaces, unrecognized
-   characters etc.? It was probably saved in UTF-16, UTF-32 or some other
-   unusual encoding. Please convert it to ASCII, UTF-8 or your current locale.
-   You can also re-save it in ASCII/UTF-8 using Praat's built-in editor.
+   characters etc.? First, try to change the input/output stream encoding under
+   Preferences->Read/Write Encoding and reopen the file. If that doesn't help,
+   your script was probably saved in UTF-16, UTF-32 or some other unusual
+   encoding. Please convert it to ASCII, UTF-8 or your current locale.  You can
+   also re-save it in ASCII/UTF-8 using Praat's built-in editor.
 3. If your OS is a flavor of GNU/Linux and double-clicking PraatEdit.jar doesn't
    start the program, make sure the file's executable flag is on (`chmod a+x
    PraatEdit.jar` in the file's directory in the terminal).

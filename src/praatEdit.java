@@ -11,9 +11,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -111,6 +113,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //    // a stack which remembers 100 undos:
 //    private FixedStack<UndoableEdit> undoFixedStack;
 //    private FixedStack<UndoableEdit> redoFixedStack;
+    // stuff for character encodings:
+    private static Boolean utf8BomFlag = false;
+    private static final String UTF8_BOM = "\uFEFF";
+    private static String encoding = "UTF-8";
+    private static final String currentLocale = System.getProperty("file.encoding");
 
     /**
      * Creates new form praatEdit
@@ -126,7 +133,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         // set up line numbers in the scrollPane's row header:
         lines = new JTextPane();
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 14));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 14));
         lines.setText("1");
         lines.setEditable(false);
         scrollPane.setRowHeaderView(lines);
@@ -167,8 +174,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fileOpen = new javax.swing.JFileChooser();
-        fileSave = new javax.swing.JFileChooser();
+        fileOpenSave = new javax.swing.JFileChooser();
         dirSelect = new javax.swing.JFileChooser();
         searchAndReplaceDialog = new javax.swing.JDialog();
         replaceTextField = new javax.swing.JTextField();
@@ -182,6 +188,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         replaceCurrentButton = new javax.swing.JButton();
         fontSizeButtonGroup = new javax.swing.ButtonGroup();
         tabWidthButtonGroup = new javax.swing.ButtonGroup();
+        readWriteEncButtonGroup = new javax.swing.ButtonGroup();
         loadingProgressFrame = new javax.swing.JDialog();
         loadingProgressBar = new javax.swing.JProgressBar();
         noWrapPanel = new javax.swing.JPanel();
@@ -240,17 +247,15 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         radioTabWidth2 = new javax.swing.JRadioButtonMenuItem();
         radioTabWidth3 = new javax.swing.JRadioButtonMenuItem();
         radioTabWidth4 = new javax.swing.JRadioButtonMenuItem();
+        readWriteEncoding = new javax.swing.JMenu();
+        radioEncodingUTF8 = new javax.swing.JRadioButtonMenuItem();
+        radioEncodingCurrLoc = new javax.swing.JRadioButtonMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         menuPreferencesSetPaths = new javax.swing.JMenuItem();
 
-        fileOpen.setApproveButtonText("Open");
-        fileOpen.setApproveButtonToolTipText("Open file as specified");
-        fileOpen.setDialogTitle("Open");
-
-        fileSave.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
-        fileSave.setApproveButtonText("Save");
-        fileSave.setApproveButtonToolTipText("Save file as specified");
-        fileSave.setDialogTitle("Save as");
+        fileOpenSave.setApproveButtonText("Open");
+        fileOpenSave.setApproveButtonToolTipText("Open file as specified");
+        fileOpenSave.setDialogTitle("Choose file...");
 
         dirSelect.setDialogTitle("Select directory");
         dirSelect.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
@@ -376,9 +381,11 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         noWrapPanel.setLayout(new java.awt.BorderLayout());
 
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 14)); // NOI18N
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
         textPane.setForeground(new java.awt.Color(204, 204, 204));
         textPane.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        textPane.setDragEnabled(true);
+        textPane.setDropMode(javax.swing.DropMode.INSERT);
         textPane.setMinimumSize(new java.awt.Dimension(6000, 2300));
 
         setPathsFrame.setTitle("Set sendpraat path...");
@@ -692,6 +699,29 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         menuPreferencesTabWidth.add(radioTabWidth4);
 
         menuPreferences.add(menuPreferencesTabWidth);
+
+        readWriteEncoding.setText("Read/Write Encoding");
+
+        readWriteEncButtonGroup.add(radioEncodingUTF8);
+        radioEncodingUTF8.setSelected(true);
+        radioEncodingUTF8.setText("UTF-8");
+        radioEncodingUTF8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioEncodingUTF8ActionPerformed(evt);
+            }
+        });
+        readWriteEncoding.add(radioEncodingUTF8);
+
+        readWriteEncButtonGroup.add(radioEncodingCurrLoc);
+        radioEncodingCurrLoc.setText("Current Locale");
+        radioEncodingCurrLoc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioEncodingCurrLocActionPerformed(evt);
+            }
+        });
+        readWriteEncoding.add(radioEncodingCurrLoc);
+
+        menuPreferences.add(readWriteEncoding);
         menuPreferences.add(jSeparator4);
 
         menuPreferencesSetPaths.setText("Set sendpraat path...");
@@ -767,6 +797,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             file = null;
             setTitle("PraatEdit");
             documentModified = false;
+            utf8BomFlag = false;
         } catch (BadLocationException e) {
         }
     }//GEN-LAST:event_menuFileNewActionPerformed
@@ -784,6 +815,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             doc.remove(0, doc.getLength());
             file = null;
             documentModified = false;
+            utf8BomFlag = false;
         } catch (BadLocationException e) {
         }
     }//GEN-LAST:event_menuFileSaveNewActionPerformed
@@ -1011,36 +1043,36 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
     private void radioFontSize10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize10ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 10));
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 10));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 10));
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 10));
         fontSize = 10;
     }//GEN-LAST:event_radioFontSize10ActionPerformed
 
     private void radioFontSize12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize12ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 12));
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 12));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 12));
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 12));
         fontSize = 12;
     }//GEN-LAST:event_radioFontSize12ActionPerformed
 
     private void radioFontSize14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize14ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 14));
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 14));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 14));
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 14));
         fontSize = 14;
     }//GEN-LAST:event_radioFontSize14ActionPerformed
 
     private void radioFontSize16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize16ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 16));
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 16));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 16));
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 16));
         fontSize = 16;
     }//GEN-LAST:event_radioFontSize16ActionPerformed
 
     private void radioFontSize18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize18ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Liberation Mono", 0, 18));
-        textPane.setFont(new java.awt.Font("Liberation Mono", 0, 18));
+        lines.setFont(new java.awt.Font("Monospaced", 0, 18));
+        textPane.setFont(new java.awt.Font("Monospaced", 0, 18));
         fontSize = 18;
     }//GEN-LAST:event_radioFontSize18ActionPerformed
 
@@ -1090,6 +1122,16 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         spLocation = setPathSPTextField.getText();
         setPathsFrame.setVisible(false);
     }//GEN-LAST:event_setPathsConfirmButtonActionPerformed
+
+    private void radioEncodingUTF8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioEncodingUTF8ActionPerformed
+        // TODO add your handling code here:
+        encoding = "UTF-8";
+    }//GEN-LAST:event_radioEncodingUTF8ActionPerformed
+
+    private void radioEncodingCurrLocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioEncodingCurrLocActionPerformed
+        // TODO add your handling code here:
+        encoding = currentLocale;
+    }//GEN-LAST:event_radioEncodingCurrLocActionPerformed
 
     public static void searchAndReplaceEscapeListener(final JDialog dialog) {
 
@@ -1292,40 +1334,56 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         if (file != null && !saveAs) {
             try {
                 // overwrite backup:
-//                backup.delete();
-                FileWriter fw_bak = new FileWriter(backup.getAbsoluteFile(), false);
-                textPane.write(fw_bak);
-                fw_bak.close();
+                FileOutputStream streamBak = new FileOutputStream(backup.getAbsoluteFile(), false);
+                OutputStreamWriter writeBak = new OutputStreamWriter(streamBak, encoding);
+                if (utf8BomFlag) {
+                    writeBak.write(UTF8_BOM);
+                }
+                textPane.write(writeBak);
+                writeBak.close();
+                streamBak.close();
 
                 // overwrite file:
-//                file.delete();
-                FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
-                textPane.write(fw);
-                fw.close();
+                FileOutputStream streamFile = new FileOutputStream(file.getAbsoluteFile(), false);
+                OutputStreamWriter writeFile = new OutputStreamWriter(streamFile, encoding);
+                if (utf8BomFlag) {
+                    writeFile.write(UTF8_BOM);
+                }
+                textPane.write(writeFile);
+                writeFile.close();
+                streamFile.close();
 
                 documentModified = false;
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(rootPane, "File couldn't be written!", "File save error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            int returnVal = fileSave.showOpenDialog(this);
+            int returnVal = fileOpenSave.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fileSave.getSelectedFile();
+                file = fileOpenSave.getSelectedFile();
                 String filename = String.valueOf(file.getAbsoluteFile());
 
                 backup = new java.io.File(filename + "~");
                 try {
                     // overwrite backup:
-//                    backup.delete();
-                    FileWriter fw_bak = new FileWriter(backup.getAbsoluteFile(), false);
-                    textPane.write(fw_bak);
-                    fw_bak.close();
+                    FileOutputStream streamBak = new FileOutputStream(backup.getAbsoluteFile(), false);
+                    OutputStreamWriter writeBak = new OutputStreamWriter(streamBak, encoding);
+                    if (utf8BomFlag) {
+                        writeBak.write(UTF8_BOM);
+                    }
+                    textPane.write(writeBak);
+                    writeBak.close();
+                    streamBak.close();
 
                     // overwrite file:
-//                    file.delete();
-                    FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
-                    textPane.write(fw);
-                    fw.close();
+                    FileOutputStream streamFile = new FileOutputStream(file.getAbsoluteFile(), false);
+                    OutputStreamWriter writeFile = new OutputStreamWriter(streamFile, encoding);
+                    if (utf8BomFlag) {
+                        writeFile.write(UTF8_BOM);
+                    }
+                    textPane.write(writeFile);
+                    writeFile.close();
+                    streamFile.close();
 
                     setTitle(filename + " - PraatEdit");
                     documentModified = false;
@@ -1350,7 +1408,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
          * EDIT: and of course, ~/.praat-dir is ~/Praat under Windows. (sigh)
          */
         File runFile = new File(praatDir + fileSep + "PraatEditMessageToPraat");
-        try (FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false)) {
+        try {
+            FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false);
             textPane.write(fw);
         } catch (IOException ex) {
             System.err.println("Copy of script for sendpraat couldn't be written"
@@ -1541,8 +1600,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            }
             // read in and set font size preferences:
             fontSize = Integer.parseInt(br.readLine().split(" ")[1]);
-            lines.setFont(new java.awt.Font("Liberation Mono", 0, fontSize));
-            textPane.setFont(new java.awt.Font("Liberation Mono", 0, fontSize));
+            lines.setFont(new java.awt.Font("Monospaced", 0, fontSize));
+            textPane.setFont(new java.awt.Font("Monospaced", 0, fontSize));
             switch (fontSize) {
                 case 10:
                     radioFontSize10.setSelected(true);
@@ -1577,15 +1636,24 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             // read in and set sendpraat path:
             spLocation = br.readLine().split(" ", 2)[1];
 //            System.err.println(spLocation);
+            encoding = br.readLine().split(" ", 2)[1];
+            if (encoding.equals("UTF-8")) {
+                radioEncodingUTF8.setSelected(true);
+            } else {
+                radioEncodingCurrLoc.setSelected(true);
+            }
             br.close();
         } catch (Exception e) {
             if (e instanceof IOException) {
                 System.err.println(e);
-                JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file in\nyour home directory couldn't be read.",
+                JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file "
+                        + "in\nyour home directory couldn't be read.",
                         "Inaccessible preferences file", JOptionPane.ERROR_MESSAGE);
             } else {
                 System.err.println(e);
-                JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file in your\nhome directory is invalid. It will be reset.",
+                JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file "
+                        + "in your\nhome directory is invalid for this version\n"
+                        + "of PraatEdit. It will be reset.",
                         "Invalid preferences file", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -1596,7 +1664,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         String prefs = "FontSize " + Integer.toString(fontSize)
                 + sep + "TabWidth " + Integer.toString(tabLen)
                 + sep + "AutoIndent " + Boolean.toString(checkBoxAutoIndent.isSelected())
-                + sep + "SendpraatDir " + spLocation;
+                + sep + "SendpraatDir " + spLocation
+                + sep + "ReadWriteEnc " + encoding;
 //        System.err.println(praatEditRC.getAbsoluteFile().toString());
 //        System.err.println(prefs);
         try {
@@ -1785,7 +1854,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             // set up the flag that tells the insert/remove methods of PraatDocument
             // not to update line numbers (it doesn't make sense to do it on each edit):
             openingFile = true;
-            int returnVal = fileOpen.showOpenDialog(rootPane);
+            int returnVal = fileOpenSave.showOpenDialog(rootPane);
             loadingProgressFrame.setLocationRelativeTo(rootPane);
             loadingProgressFrame.setVisible(true);
             // offset from beginning of document (used for displaying the text line by line):
@@ -1793,7 +1862,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            int trackLoadProgress = 0;
             String line;
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                file = fileOpen.getSelectedFile();
+                file = fileOpenSave.getSelectedFile();
                 filename = String.valueOf(file.getAbsoluteFile());
                 backup = new java.io.File(filename + "~");
                 try {
@@ -1815,16 +1884,24 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     // create a new document and insert into it...
                     doc = new PraatDocument();
 //                    Scanner readFileIn = new Scanner(file);
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath())));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), encoding));
 //                        LineNumberReader lnr = new LineNumberReader(new FileReader(file));
 //                        lnr.skip(Long.MAX_VALUE);
 //                        loadingProgressBar.setMaximum(lnr.getLineNumber() + 1);
                     setProgress(1);
+                    utf8BomFlag = false;
+                    int i = 0;
                     while ((line = br.readLine()) != null) {
 //                    while (readFileIn.hasNextLine()) {
 //                        line  = readFileIn.nextLine();
+                        // throw away UTF-8 BOM if present:
+                        if (i == 0 && line.startsWith(UTF8_BOM)) {
+                            line = line.substring(1);
+                            utf8BomFlag = true;
+                        }
                         doc.insertString(offset, line + lineSep, null);
                         offset += line.length() + lineSepLen;
+                        i++;
 //                        setProgress(++trackLoadProgress);
                     }
                     // remove the last line separator (bc it wasn't in the original
@@ -1922,8 +1999,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JCheckBoxMenuItem checkBoxAutoIndent;
     private javax.swing.JCheckBox checkBoxUseRegex;
     private javax.swing.JFileChooser dirSelect;
-    private javax.swing.JFileChooser fileOpen;
-    private javax.swing.JFileChooser fileSave;
+    private javax.swing.JFileChooser fileOpenSave;
     private javax.swing.JButton findAllButton;
     private javax.swing.JButton findNext;
     private javax.swing.JTextField findTextField;
@@ -1961,6 +2037,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JMenuItem menuPreferencesSetPaths;
     private javax.swing.JMenu menuPreferencesTabWidth;
     private javax.swing.JPanel noWrapPanel;
+    private javax.swing.JRadioButtonMenuItem radioEncodingCurrLoc;
+    private javax.swing.JRadioButtonMenuItem radioEncodingUTF8;
     private javax.swing.JRadioButtonMenuItem radioFontSize10;
     private javax.swing.JRadioButtonMenuItem radioFontSize12;
     private javax.swing.JRadioButtonMenuItem radioFontSize14;
@@ -1969,6 +2047,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private javax.swing.JRadioButtonMenuItem radioTabWidth2;
     private javax.swing.JRadioButtonMenuItem radioTabWidth3;
     private javax.swing.JRadioButtonMenuItem radioTabWidth4;
+    private javax.swing.ButtonGroup readWriteEncButtonGroup;
+    private javax.swing.JMenu readWriteEncoding;
     private javax.swing.JButton replaceAllButton;
     private javax.swing.JButton replaceCurrentButton;
     private javax.swing.JTextField replaceTextField;

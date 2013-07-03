@@ -28,7 +28,7 @@ public class format {
     // stuff for the parser:
     private static final String praatProcCall = "@\\w+";
     private static final String praatKeywords = "(for|endfor|if|elsif|else|endif"
-            + "|from|to|form|endform|proc|endproc|editor|endeditor|and|or|not"
+            + "|from|to|form|endform|procedure|endproc|editor|endeditor|and|or|not"
             + "|while|endwhile|repeat|until)";
     private static final String praatBuiltins = "(clearinfo|printline|print"
             + "|e|pi|undefined|select|all|plus|minus|selected|selected\\$|do"
@@ -38,7 +38,7 @@ public class format {
             + "|sendsocket|assert|nowarn|nocheck)";
 //    private static final String praatVarContent = "'\\S+?'";
     private static final String praatTokenDelimiters = "(\\s|\\(|\\)|\\+|-"
-            + "|/|\\*|\\^|&|%|=|>|<|:|,|\\.|\\?|\\||\\[|\\]|\\{|\\}|\"|')";
+            + "|/|\\*|\\^|&|%|=|>|<|:|,|\\.|\\?|\\||\\[|\\]|\\{|\\}|\"|'|#|;)";
     private static final String praatZeroWidthDelimiters = "((?<="
             + praatTokenDelimiters + ")|(?=" + praatTokenDelimiters + "))";
     private static Boolean ongoingString;
@@ -69,12 +69,12 @@ public class format {
          * When a newline is inserted, "current line" means the one ending in the
          * newline just inserted.
          */
-        
+
         // reset the ongoingString and ongoingVarContent flags:
         ongoingString = false;
         ongoingVarContent = false;
-        
-        System.err.println(offset);
+
+//        System.err.println(offset);
         String text = doc.getText(0, doc.getLength());
 
         // the offset relative to which the current line is determined:
@@ -87,19 +87,30 @@ public class format {
         // don't use .trim() on the line, otherwise the highlighting will come out
         // shifted w.r.t. to the real position of the text:
         String line = text.substring(startOfLine, endOfLine);
+        String trimmedLine = line.trim();
         String[] parsedLine = line.split(praatZeroWidthDelimiters);
-        System.err.println(Arrays.toString(parsedLine) + parsedLine.length); //DEBUG
+//        System.err.println(Arrays.toString(parsedLine) + parsedLine.length); //DEBUG
 
         // set up initial line offset:
         int lineOffset = 0;
-        for (int i = 0; i < parsedLine.length; i++) {
-            if (parsedLine[i].startsWith(";") || parsedLine[i].startsWith("#")) {
-                doc.setCharacterAttributes(startOfLine + lineOffset, endOfLine - startOfLine - lineOffset, attrComment, true);
-                break;
+        // Praat doesn't allow hash-marked comments to follow on a line after code,
+        // so a hash indicates a comment only if it is at the beginning of a line:
+        if (trimmedLine.startsWith("#")) {
+            doc.setCharacterAttributes(startOfLine + lineOffset, endOfLine - startOfLine - lineOffset, attrComment, true);
+        } else {
+            for (int i = 0; i < parsedLine.length; i++) {
+                // a semi-colon marked comment can start anywhere on the line
+                // (except for lines starting with the old print[line] keywords,
+                // where the semi-colon just gets printed):
+//                System.err.println(">" + parsedLine[i] + "<");
+                if (parsedLine[i].startsWith(";") && !ongoingString
+                        && !trimmedLine.startsWith("print")) {
+                    doc.setCharacterAttributes(startOfLine + lineOffset, endOfLine - startOfLine - lineOffset, attrComment, true);
+                    break;
+                }
+                lineOffset = highlightToken(doc, parsedLine[i], startOfLine, lineOffset);
             }
-            lineOffset = highlightToken(doc, parsedLine[i], startOfLine, lineOffset);
         }
-
         return line;
     }
 
