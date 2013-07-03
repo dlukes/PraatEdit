@@ -93,8 +93,10 @@ Troubleshooting
 ===============
 
 1. Praat giving you a cryptic error message when you try running your scripts?
-   Chances are your script's filename contains spaces. It shouldn't. Get rid of
-   them, or `sendpraat` won't be able to send your script to Praat.
+   Chances are PraatEdit thinks your Praat configuration directory is elsewhere
+   than it really is; please set its location manually via the Preferences->Set
+   paths... dialog. (This directory is called Praat on Windows and .praat-dir on
+   Linux, and is normally located in your home folder.)
 1. PraatEdit not working/crashing gracelessly? Try upgrading to a more recent
    version of Java (and make sure Oracle doesn't smuggle the obnoxious Ask
    Toolbar into your browser in the process). PraatEdit was tested on Ubuntu
