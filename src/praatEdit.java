@@ -397,6 +397,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         textPane.setMinimumSize(new java.awt.Dimension(6000, 2300));
 
         setPathsFrame.setTitle("Set paths...");
+        setPathsFrame.setResizable(false);
 
         jLabel4.setText("Location of the sendpraat program:");
 
@@ -469,7 +470,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     .addComponent(setPathsPCChooseButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(setPathsConfirmButton)
-                .addGap(32, 32, 32))
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -868,7 +869,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //                case 1:
 //            }
 //        } else {
-        prepareFileForSendPraat();
         runFile();
 //        }
     }//GEN-LAST:event_menuFileRunActionPerformed
@@ -1446,7 +1446,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                 System.out.println("File access cancelled by user.");
             }
         }
-        prepareFileForSendPraat();
     }
 
     private void prepareFileForSendPraat() {
@@ -1461,11 +1460,18 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
          */
         File runFile = new File(praatDir + fileSep + "PraatEditMessageToPraat");
         try {
-            FileWriter fw = new FileWriter(runFile.getAbsoluteFile(), false);
-            textPane.write(fw);
+            FileOutputStream streamRun = new FileOutputStream(runFile.getAbsoluteFile(), false);
+            OutputStreamWriter writeRun = new OutputStreamWriter(streamRun, "UTF-8");
+            textPane.write(writeRun);
+            writeRun.close();
+            streamRun.close();
         } catch (IOException ex) {
             System.err.println("Copy of script for sendpraat couldn't be written"
                     + " to " + praatDir + " .");
+            JOptionPane.showMessageDialog(rootPane, "Copy of script for sendpraat couldn't be written"
+                    + " to " + praatDir + " .\n\n"
+                    + ex,
+                    "Error running script", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1549,6 +1555,12 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void runFile() {
+        prepareFileForSendPraat();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            System.err.println(e);
+        }
         System.err.println("Sending script to Praat via " + spLocation + fileSep
                 + "sendpraat");
         try {
@@ -1561,7 +1573,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            System.err.println(file.getParentFile().toString());
             Process p = rt.exec(cmd); //, null, file.getParentFile());
         } catch (IOException e) {
-//            "fas fas dfsafsfsfsdf f s".
             JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
                     + "you sure you have sendpraat in the directory specified under \n"
                     + "Preferences->Set paths...? If not, please move "
@@ -1574,7 +1585,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
     private void exit() {
         // remove the PraatEditMessageToPraatFile:
-        File runFile = new File(userHome + fileSep + ".praat-dir"
+        File runFile = new File(userHome + fileSep + praatDir
                 + fileSep + "PraatEditMessageToPraat");
         runFile.delete();
         savePreferences();
