@@ -1448,7 +1448,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         }
     }
 
-    private void prepareFileForSendPraat() {
+    private Boolean prepareFileForSendPraat() {
         /*
          * THE FOLLOWING DEALS WITH A QUIRK OF SENDPRAAT:
          * the path to the file might contain spaces, which sendpraat cannot
@@ -1465,6 +1465,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             textPane.write(writeRun);
             writeRun.close();
             streamRun.close();
+            return true;
         } catch (IOException ex) {
             System.err.println("Copy of script for sendpraat couldn't be written"
                     + " to " + praatDir + " .");
@@ -1472,6 +1473,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     + " to " + praatDir + " .\n\n"
                     + ex,
                     "Error running script", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
@@ -1555,31 +1557,33 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     }
 
     private void runFile() {
-        prepareFileForSendPraat();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            System.err.println(e);
-        }
-        System.err.println("Sending script to Praat via " + spLocation + fileSep
-                + "sendpraat");
-        try {
-            String[] cmd = new String[3];
-            cmd[0] = spLocation + fileSep + "sendpraat";
-            cmd[1] = "praat";
-            cmd[2] = "execute " + "PraatEditMessageToPraat";
-            Runtime rt = Runtime.getRuntime();
+        Boolean messageFileWritten = prepareFileForSendPraat();
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//            System.err.println(e);
+//        }
+        if (messageFileWritten) {
+            System.err.println("Sending script to Praat via " + spLocation + fileSep
+                    + "sendpraat");
+            try {
+                String[] cmd = new String[3];
+                cmd[0] = spLocation + fileSep + "sendpraat";
+                cmd[1] = "praat";
+                cmd[2] = "execute " + "PraatEditMessageToPraat";
+                Runtime rt = Runtime.getRuntime();
 //            System.err.println(Arrays.toString(cmd));
 //            System.err.println(file.getParentFile().toString());
-            Process p = rt.exec(cmd); //, null, file.getParentFile());
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
-                    + "you sure you have sendpraat in the directory specified under \n"
-                    + "Preferences->Set paths...? If not, please move "
-                    + "sendpraat there, or change the path.\n\n"
-                    + e,
-                    "Error running script", JOptionPane.ERROR_MESSAGE);
-            System.err.println(e);
+                Process p = rt.exec(cmd); //, null, file.getParentFile());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(rootPane, "Error running script! Are "
+                        + "you sure you have sendpraat in the directory specified under \n"
+                        + "Preferences->Set paths...? If not, please move "
+                        + "sendpraat there, or change the path.\n\n"
+                        + e,
+                        "Error running script", JOptionPane.ERROR_MESSAGE);
+                System.err.println(e);
+            }
         }
     }
 
