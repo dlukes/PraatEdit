@@ -1,5 +1,6 @@
 
 import java.awt.Color;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,6 +17,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -925,7 +929,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                 int newStrLen = newStr.length();
                 int[] match = doMatch(text, oldStr, replaceOffset);
                 if (match[0] > -1) {
-                    doc.remove(match[0], oldStr.length());
+                    doc.remove(match[0], match[1]);
                     // we cannot set the char attr of the string upon insert, because
                     // insertString strips all highlighting of background...
                     doc.insertString(match[0], newStr, null);
@@ -1240,7 +1244,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             int newStrLen = newStr.length();
             int[] match = doMatch(text, oldStr, searchOffset);
             if (match[0] > -1) {
-                doc.remove(match[0], oldStr.length());
+                doc.remove(match[0], match[1]);
                 // we cannot set the char attr of the string upon insert, because
                 // insertString strips all highlighting of background...
                 doc.insertString(match[0], newStr, null);
@@ -1885,7 +1889,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
             // it for now); remember that when a newline is inserted, the variable
             // line corresponds to the preceding line (i.e. the on we want in order
             // to determine the indent):
-            if (checkBoxAutoIndent.isSelected()) {
+            if (checkBoxAutoIndent.isSelected() && !openingFile) {
                 if (line.matches(praatAutoIndent) && str.matches(lineSepRegex)) {
                     Matcher spaceMatcher = praatSpacePattern.matcher(line);
                     spaceMatcher.find();
@@ -2036,7 +2040,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
          */
         @Override
         public void done() {
-//            setCursor(null); //turn off the wait cursor
             textPane.setDocument(doc);
             doc.addUndoableEditListener(unEdList);
             // TODO: count the linenumbers while loading the file and implement
