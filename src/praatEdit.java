@@ -1,6 +1,5 @@
 
 import java.awt.Color;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -17,9 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -123,6 +119,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private static final String UTF8_BOM = "\uFEFF";
     private static String encoding = "UTF-8";
     private static final String currentLocale = System.getProperty("file.encoding");
+    private static String fontName = "Courier New";
 
     /**
      * Creates new form praatEdit
@@ -138,7 +135,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         // set up line numbers in the scrollPane's row header:
         lines = new JTextPane();
-        lines.setFont(new java.awt.Font("Monospaced", 0, 14));
+        lines.setFont(new java.awt.Font(fontName, 0, 14));
         lines.setText("1");
         lines.setEditable(false);
         scrollPane.setRowHeaderView(lines);
@@ -393,7 +390,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
         noWrapPanel.setLayout(new java.awt.BorderLayout());
 
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
+        textPane.setFont(new java.awt.Font(fontName, 0, 14));
         textPane.setForeground(new java.awt.Color(204, 204, 204));
         textPane.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         textPane.setDragEnabled(true);
@@ -795,7 +792,6 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     return;
             }
         }
-
         openFile();
     }//GEN-LAST:event_menuFileOpenActionPerformed
 
@@ -1087,36 +1083,36 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 
     private void radioFontSize10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize10ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Monospaced", 0, 10));
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 10));
+        lines.setFont(new java.awt.Font(fontName, 0, 10));
+        textPane.setFont(new java.awt.Font(fontName, 0, 10));
         fontSize = 10;
     }//GEN-LAST:event_radioFontSize10ActionPerformed
 
     private void radioFontSize12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize12ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Monospaced", 0, 12));
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 12));
+        lines.setFont(new java.awt.Font(fontName, 0, 12));
+        textPane.setFont(new java.awt.Font(fontName, 0, 12));
         fontSize = 12;
     }//GEN-LAST:event_radioFontSize12ActionPerformed
 
     private void radioFontSize14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize14ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Monospaced", 0, 14));
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 14));
+        lines.setFont(new java.awt.Font(fontName, 0, 14));
+        textPane.setFont(new java.awt.Font(fontName, 0, 14));
         fontSize = 14;
     }//GEN-LAST:event_radioFontSize14ActionPerformed
 
     private void radioFontSize16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize16ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Monospaced", 0, 16));
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 16));
+        lines.setFont(new java.awt.Font(fontName, 0, 16));
+        textPane.setFont(new java.awt.Font(fontName, 0, 16));
         fontSize = 16;
     }//GEN-LAST:event_radioFontSize16ActionPerformed
 
     private void radioFontSize18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioFontSize18ActionPerformed
         // TODO add your handling code here:
-        lines.setFont(new java.awt.Font("Monospaced", 0, 18));
-        textPane.setFont(new java.awt.Font("Monospaced", 0, 18));
+        lines.setFont(new java.awt.Font(fontName, 0, 18));
+        textPane.setFont(new java.awt.Font(fontName, 0, 18));
         fontSize = 18;
     }//GEN-LAST:event_radioFontSize18ActionPerformed
 
@@ -1671,6 +1667,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
 //            }
             // throw away first line of rc file (just a comment):
             br.readLine();
+            // read in and set font name:
+            fontName = br.readLine().split(" ", 2)[1];
             // read in and set font size preferences:
             fontSize = Integer.parseInt(br.readLine().split(" ")[1]);
             switch (fontSize) {
@@ -1692,8 +1690,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                     radioFontSize14.setSelected(true);
                     fontSize = 14;
             }
-            lines.setFont(new java.awt.Font("Monospaced", 0, fontSize));
-            textPane.setFont(new java.awt.Font("Monospaced", 0, fontSize));
+            lines.setFont(new java.awt.Font(fontName, 0, fontSize));
+            textPane.setFont(new java.awt.Font(fontName, 0, fontSize));
             // read in and set tab-width preferences:
             tabLen = Integer.parseInt(br.readLine().split(" ")[1]);
             switch (tabLen) {
@@ -1738,6 +1736,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                 System.err.println(e);
                 // reset all preferences to defaults (we want to save a fresh and
                 // correct .praateditrc on exit):
+                fontName = "Courier New";
                 fontSize = 14;
                 tabLen = 4;
                 tab = "    ";
@@ -1748,8 +1747,8 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
                 encoding = "UTF-8";
                 lastFileChooseDir = userHome;
                 JOptionPane.showMessageDialog(rootPane, "The .praatrc preferences file "
-                        + "in your\nhome directory is incompatible with this version\n"
-                        + "of PraatEdit. It will be reset.",
+                        + "in your home directory\nis incompatible with this version "
+                        + "of PraatEdit. It will be reset.\nPlease restart PraatEdit.",
                         "Invalid preferences file", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -1758,6 +1757,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
     private void savePreferences() {
         String sep = System.getProperty("line.separator");
         String prefs = "# Preferences file written by PraatEdit; DO NOT MODIFY!"
+                + sep + "FontName " + fontName
                 + sep + "FontSize " + Integer.toString(fontSize)
                 + sep + "TabWidth " + Integer.toString(tabLen)
                 + sep + "AutoIndent " + Boolean.toString(checkBoxAutoIndent.isSelected())
@@ -1777,7 +1777,7 @@ public class praatEdit extends javax.swing.JFrame implements PropertyChangeListe
         } catch (IOException e) {
             System.err.println("Couldn't write preferences to file. Insufficient privileges?");
         }
-        UndoableEdit[] arr = new UndoableEdit[4];
+//        UndoableEdit[] arr = new UndoableEdit[4];
     }
 
     /*
