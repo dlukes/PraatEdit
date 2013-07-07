@@ -59,6 +59,8 @@ include:
 * switch between **UTF-8** and your **current locale** as read/write encodings
   (the recommended setting is to work with UTF-8 exclusively; if you change the
   encoding, you need to reopen your current file for the change to take effect)
+* **typeface** settings can be changed (only) by editing the appropriate line in
+  the config file (.praateditrc in your home directory)
 * settings persistent across sessions
 * undo/redo support is currently crude, but hey, it can only get better; the
   rule of thumb is: don't rely on it too much and **don't hold Ctrl-Z/Ctrl-Y
@@ -98,6 +100,11 @@ resetting PraatEdit to its "factory" defaults. (Apologies for having to
 re-configure your preferences afterwards, but the customization options of
 PraatEdit being limited, I hope it's an acceptable drawback.)
 
+1. Don't like the default **typeface**, or worse, Courier New is being replaced
+   by a proportional font on your system? Open the configuration file (.praateditrc
+   in your home directory) in your favorite text editor and change the name of the
+   font on the line starting with "FontName" to one you like and know is installed
+   on your system.
 1. Praat giving you a cryptic error message when you try running your scripts?
    Chances are PraatEdit thinks your Praat configuration directory is elsewhere
    than it really is; please set its location manually via the Preferences->Set
