@@ -115,7 +115,7 @@ PraatEdit being limited, I hope it's an acceptable drawback.)
    your script was probably saved in UTF-16, UTF-32 or some other unusual
    encoding. Please convert it to ASCII, UTF-8 or your current locale.  You can
    also re-save it in ASCII/UTF-8 using Praat's built-in editor.
-3. If your OS is a flavor of GNU/Linux and double-clicking PraatEdit.jar doesn't
+3. If your OS is a flavor of Linux and double-clicking PraatEdit.jar doesn't
    start the program, make sure the file's executable flag is on (`chmod a+x
    PraatEdit.jar` in the file's directory in the terminal).
 4. Should one of your files be corrupted following an unexpected crash, the
@@ -144,12 +144,12 @@ ensure that, follow these steps:
    [`sendpraat`](http://www.fon.hum.uva.nl/praat/sendpraat.html).
 2. Make sure the program is called *precisely* `sendpraat` (or `sendpraat.exe` on
    Windows); if not, rename it to `sendpraat` (or `sendpraat.exe` on Windows).
-3. Put it in your home folder (e.g. `/home/username/` on GNU/Linux or
+3. Put it in your home folder (e.g. `/home/username/` on Linux or
    `C:\Users\username\` on Windows).
 3. You can also put it elsewhere, but in that case, you have to set the location
    of `sendpraat` accordingly via the Preferences->Set paths... dialog,
    so that PraatEdit knows where to find it.
-4. On GNU/Linux, make sure that sendpraat has the executable flag on (e.g. by
+4. On Linux, make sure that sendpraat has the executable flag on (e.g. by
    running `chmod a+x sendpraat` in your home directory).
 5. In any case, make sure that the **name of your script doesn't contain any
    spaces**, otherwise `sendpraat` won't be able to handle it correctly.
